@@ -7,24 +7,35 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
+	private int port;
+	private ServerSocket serverSocket;
 
-    public static void main(String[] args) throws IOException {
+	public Server() throws IOException {
+		port = 7777;
+		serverSocket = new ServerSocket(port);
+		System.err.println("Server started");
 
-        ServerSocket serverSocket = new ServerSocket(7777);
-        System.err.println("Server started");
-        while (true) {
-            Socket socket = serverSocket.accept();
-            System.out.println("===new client connected===");
-            while (socket.isConnected()) {
-                try {
-                    BufferedReader reader = new BufferedReader(
-                            new InputStreamReader(socket.getInputStream()));
-                    System.out.println(reader.readLine() + " received");
-                } catch (IOException e) {
-                    System.out.println("Client disconnected");
-                    break;
-                }
-            }
-        }
-    }
+		start();
+	}
+
+	private void start() throws IOException {
+		while (true) {
+			Socket socket = serverSocket.accept();
+			System.out.println("===new client connected===");
+			while (socket.isConnected()) {
+				try {
+					BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+					String textFromClient = reader.readLine();
+					System.out.println(textFromClient + " received");
+				} catch (IOException e) {
+					System.out.println("Client disconnected");
+					break;
+				}
+			}
+		}
+	}
+
+	public static void main(String[] args) throws IOException {
+		new Server();
+	}
 }
