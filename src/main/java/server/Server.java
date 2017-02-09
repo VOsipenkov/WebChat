@@ -9,6 +9,7 @@ import java.net.Socket;
 public class Server {
 	private int port;
 	private ServerSocket serverSocket;
+	private static Socket newSocket;
 
 	public Server() throws IOException {
 		port = 7777;
@@ -20,18 +21,27 @@ public class Server {
 
 	private void start() throws IOException {
 		while (true) {
-			Socket socket = serverSocket.accept();
+			newSocket = serverSocket.accept();
 			System.out.println("===new client connected===");
-			while (socket.isConnected()) {
-				try {
-					BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-					String textFromClient = reader.readLine();
-					System.out.println(textFromClient + " received");
-				} catch (IOException e) {
-					System.out.println("Client disconnected");
-					break;
+
+			// Creates new client thread
+			Thread thread = new Thread(new Runnable() {
+
+				public void run() {
+					Socket socket = newSocket;
+					while (socket.isConnected()) {
+						try {
+							BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+							String textFromClient = reader.readLine();
+							System.out.println(textFromClient + " received");
+						} catch (IOException e) {
+							System.out.println("Client disconnected");
+							break;
+						}
+					}
 				}
-			}
+			});
+			thread.start();
 		}
 	}
 
