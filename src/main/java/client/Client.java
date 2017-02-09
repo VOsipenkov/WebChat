@@ -1,6 +1,8 @@
 package client;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -16,6 +18,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 
 public class Client {
 	private final String SERVER_IP_ADDRESS = "127.0.0.1";
@@ -44,6 +47,8 @@ public class Client {
 		chatArea = new JTextArea(15, 40);
 		chatArea.setEditable(false);
 		JScrollPane scrollPane = new JScrollPane(chatArea);
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		panel.add(scrollPane);
 
 		messageField = new JTextField(40);
