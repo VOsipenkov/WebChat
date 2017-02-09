@@ -10,54 +10,66 @@ import java.net.Socket;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 public class Client {
-    private final String SERVER_IP_ADDRESS = "127.0.0.1";
-    private final int PORT = 7777;
+	private final String SERVER_IP_ADDRESS = "127.0.0.1";
+	private final int PORT = 7777;
 
-    private JTextField messageField;
-    private Socket socket;
-    private PrintWriter writer;
+	private JTextField messageField;
+	private JTextArea chatArea;
+	private Socket socket;
+	private PrintWriter writer;
 
-    public Client() throws IOException {
-        createGUI();
-        setUpConnection();
-        System.err.println("Client started");
-    }
+	public Client() throws IOException {
+		createGUI();
+		setUpConnection();
+		System.err.println("Client started");
+	}
 
-    private void createGUI() {
-        JFrame frame = new JFrame("Simple Chat");
-        frame.setLocationRelativeTo(null);
-        frame.setSize(new Dimension(400, 130));
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	private void createGUI() {
+		JFrame frame = new JFrame("Simple Chat");
+		frame.setSize(new Dimension(500, 400));
+		frame.setLocationRelativeTo(null);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel panel = new JPanel();
-        messageField = new JTextField(20);
-        JButton sendButton = new JButton("Send");
-        sendButton.addActionListener(new SendAction());
+		JPanel panel = new JPanel();
 
-        panel.add(messageField);
-        panel.add(sendButton);
+		chatArea = new JTextArea(15, 40);
+		JScrollPane scrollPane = new JScrollPane(chatArea);
+		panel.add(scrollPane);
 
-        frame.getContentPane().add(panel);
-        frame.setVisible(true);
-    }
+		messageField = new JTextField(40);
+		JButton sendButton = new JButton("Send");
+		sendButton.addActionListener(new SendAction());
 
-    private void setUpConnection() throws IOException {
-        socket = new Socket(SERVER_IP_ADDRESS, PORT);
-        writer = new PrintWriter(socket.getOutputStream());
-    }
+		panel.add(messageField);
+		panel.add(sendButton);
 
-    class SendAction implements ActionListener {
+		frame.getContentPane().add(panel);
+		frame.setVisible(true);
+	}
 
-        public void actionPerformed(ActionEvent e) {
-            writer.println(messageField.getText());
-            writer.flush();
+	private void setUpConnection() throws IOException {
+		socket = new Socket(SERVER_IP_ADDRESS, PORT);
+		writer = new PrintWriter(socket.getOutputStream());
+	}
 
-            messageField.setText("");
-            messageField.requestFocus();
-        }
-    }
+	class SendAction implements ActionListener {
 
+		public void actionPerformed(ActionEvent e) {
+			writer.println(messageField.getText());
+			writer.flush();
+
+			messageField.setText("");
+			messageField.requestFocus();
+		}
+	}
+
+	public static void main(String[] args) throws IOException {
+		new Client();
+	}
 }
