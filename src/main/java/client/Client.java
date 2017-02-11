@@ -30,11 +30,12 @@ public class Client {
 	private BufferedReader reader;
 	private JPanel chatPanel;
 	private JPanel authorizePanel;
+	private JTextField nameField;
+	private JTextField ipText;
+	private JTextField portText;
 
 	public Client() throws IOException {
 		createGUI();
-		setUpConnection();
-		System.err.println("Client started");
 	}
 
 	private void createGUI() {
@@ -45,11 +46,11 @@ public class Client {
 
 		authorizePanel = new JPanel();
 		JLabel nameLabel = new JLabel("Your name");
-		JTextField nameField = new JTextField(10);
+		nameField = new JTextField(10);
 		JLabel ipLabel = new JLabel("IP");
-		JTextField ipText = new JTextField(3);
+		ipText = new JTextField(5);
 		JLabel portLabel = new JLabel("Port");
-		JTextField portText = new JTextField(3);
+		portText = new JTextField(3);
 		JButton connectButton = new JButton("Connect");
 		connectButton.addActionListener(new ConnectAction());
 
@@ -80,30 +81,44 @@ public class Client {
 		frame.getContentPane().add(authorizePanel, BorderLayout.NORTH);
 		frame.getContentPane().add(chatPanel, BorderLayout.CENTER);
 		frame.setVisible(true);
+
+		ipText.setText(SERVER_IP_ADDRESS);
+		portText.setText(Integer.toString(PORT));
 	}
 
-	private void setUpConnection() throws IOException {
-		socket = new Socket(SERVER_IP_ADDRESS, PORT);
+	private boolean setUpConnection() throws IOException {
 		writer = new PrintWriter(socket.getOutputStream());
 		reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-		Thread thread = new Thread(new Runnable() {
+		writer.println(nameField);
+		writer.flush();
+		String handShakeResult = reader.readLine();
+		if (handShakeResult.equals("OK")) {
 
-			public void run() {
-				while (socket.isConnected()) {
-					try {
-						String line;
-						if ((line = reader.readLine()) != null) {
-							chatArea.append(line + "\n");
+			Thread thread = new Thread(new Runnable() {
+
+				public void run() {
+					while (socket.isConnected()) {
+						try {
+							String line;
+							if ((line = reader.readLine()) != null) {
+								chatArea.append(line + "\n");
+							}
+						} catch (IOException e) {
+							e.printStackTrace();
 						}
-					} catch (IOException e) {
-						e.printStackTrace();
 					}
 				}
-			}
-		});
+			});
 
-		thread.start();
+			thread.start();
+
+			return true;
+		} else {
+			System.out.println("Server Error response");
+
+			return false;
+		}
 
 	}
 
@@ -122,10 +137,36 @@ public class Client {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			chatPanel.setVisible(true);
-			authorizePanel.setVisible(false);
-		}
+			try {
+				if (checkIpAndPort() && checkName()) {
+					socket = new Socket(ipText.getText().trim(), Integer.parseInt(portText.getText().trim()));
 
+					if (socket != null && socket.isConnected()) {
+						if (setUpConnection()) {
+							System.err.println("Client started");
+							chatPanel.setVisible(true);
+							authorizePanel.setVisible(false);
+						}
+					}
+				}
+			} catch (NumberFormatException | IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+	}
+
+	private boolean checkIpAndPort() {
+		// TODO create check IP/PORT logic.
+		return true;
+	}
+
+	private boolean checkName() {
+		if (nameField.getText() != null && !nameField.equals("")) {
+			return true;
+		} else {
+			return false;
+		}
+		// TODO create Name logic.
 	}
 
 	public static void main(String[] args) throws IOException {
