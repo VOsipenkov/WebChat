@@ -1,8 +1,7 @@
 package client;
 
-import java.awt.Color;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -13,8 +12,8 @@ import java.net.Socket;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -29,6 +28,8 @@ public class Client {
 	private Socket socket;
 	private PrintWriter writer;
 	private BufferedReader reader;
+	private JPanel chatPanel;
+	private JPanel authorizePanel;
 
 	public Client() throws IOException {
 		createGUI();
@@ -38,27 +39,46 @@ public class Client {
 
 	private void createGUI() {
 		JFrame frame = new JFrame("Simple Chat");
-		frame.setSize(new Dimension(500, 400));
+		frame.setSize(new Dimension(500, 350));
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		JPanel panel = new JPanel();
+		authorizePanel = new JPanel();
+		JLabel nameLabel = new JLabel("Your name");
+		JTextField nameField = new JTextField(10);
+		JLabel ipLabel = new JLabel("IP");
+		JTextField ipText = new JTextField(3);
+		JLabel portLabel = new JLabel("Port");
+		JTextField portText = new JTextField(3);
+		JButton connectButton = new JButton("Connect");
+		connectButton.addActionListener(new ConnectAction());
 
+		authorizePanel.add(nameLabel);
+		authorizePanel.add(nameField);
+		authorizePanel.add(ipLabel);
+		authorizePanel.add(ipText);
+		authorizePanel.add(portLabel);
+		authorizePanel.add(portText);
+		authorizePanel.add(connectButton);
+
+		chatPanel = new JPanel();
 		chatArea = new JTextArea(15, 40);
 		chatArea.setEditable(false);
 		JScrollPane scrollPane = new JScrollPane(chatArea);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		panel.add(scrollPane);
+		chatPanel.add(scrollPane);
 
 		messageField = new JTextField(40);
 		JButton sendButton = new JButton("Send");
 		sendButton.addActionListener(new SendAction());
 
-		panel.add(messageField);
-		panel.add(sendButton);
+		chatPanel.add(messageField);
+		chatPanel.add(sendButton);
+		chatPanel.setVisible(false);
 
-		frame.getContentPane().add(panel);
+		frame.getContentPane().add(authorizePanel, BorderLayout.NORTH);
+		frame.getContentPane().add(chatPanel, BorderLayout.CENTER);
 		frame.setVisible(true);
 	}
 
@@ -98,7 +118,18 @@ public class Client {
 		}
 	}
 
+	class ConnectAction implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			chatPanel.setVisible(true);
+			authorizePanel.setVisible(false);
+		}
+
+	}
+
 	public static void main(String[] args) throws IOException {
 		new Client();
 	}
+
 }
