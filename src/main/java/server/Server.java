@@ -39,10 +39,16 @@ public class Server {
 						PrintWriter writer = new PrintWriter(socket.getOutputStream());
 						outputStreams.put(socket, writer);
 
+						String clientName = reader.readLine();
+						if (clientName != null && !clientName.equals("")) {
+							writer.println("OK");
+							writer.flush();
+						}
+
 						while (socket.isConnected()) {
 							String textFromClient = reader.readLine();
 							System.out.println(textFromClient + " received");
-							sendBroadcast(textFromClient, socket);
+							sendBroadcast(clientName, textFromClient, socket);
 						}
 					} catch (IOException e) {
 						System.out.println("Client disconnected");
@@ -56,11 +62,11 @@ public class Server {
 		}
 	}
 
-	private void sendBroadcast(String message, Socket currentSocket) {
+	private void sendBroadcast(String author, String message, Socket currentSocket) {
 		Iterator<Socket> keys = outputStreams.keySet().iterator();
 		while (keys.hasNext()) {
 			PrintWriter writer = outputStreams.get(keys.next());
-			writer.println(message);
+			writer.println(author + ": " + message);
 			writer.flush();
 		}
 	}

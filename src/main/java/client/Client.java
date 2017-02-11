@@ -90,7 +90,7 @@ public class Client {
 		writer = new PrintWriter(socket.getOutputStream());
 		reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-		writer.println(nameField);
+		writer.println(nameField.getText().trim());
 		writer.flush();
 		String handShakeResult = reader.readLine();
 		if (handShakeResult.equals("OK")) {
