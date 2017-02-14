@@ -69,7 +69,7 @@ public class Client {
 
 	class ConnectAction implements ActionListener {
 
-		@Override
+
 		public void actionPerformed(ActionEvent e) {
 			try {
 				if (checkIpAndPort() && checkName()) {
