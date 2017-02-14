@@ -1,4 +1,4 @@
-package server;
+
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -6,6 +6,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.rmi.NotBoundException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -13,6 +16,7 @@ import java.util.Map;
 public class Server {
 	private int port;
 	private ServerSocket serverSocket;
+	private FileSaver rmiFileService;
 	private static Socket newSocket;
 	private Map<Socket, PrintWriter> outputStreams = new HashMap<>();
 
@@ -20,7 +24,22 @@ public class Server {
 		port = 7777;
 		serverSocket = new ServerSocket(port);
 		System.err.println("Server started");
+		
+		try {
+			Registry reg = LocateRegistry.getRegistry("127.0.0.1", 9999);
+			rmiFileService = (FileSaver) reg.lookup("toFile");
+			if (rmiFileService != null) {
+				System.err.println("connected to remote db service successfull");
+			}
+		} catch (NotBoundException e) {
+			System.out.println("Error throws when try connect to dv service");
+			e.printStackTrace();
+		}
 
+		if (rmiFileService == null) {
+			System.err.println("remote db service not found");
+		}
+		
 		start();
 	}
 
@@ -49,6 +68,9 @@ public class Server {
 							String textFromClient = reader.readLine();
 							System.out.println(textFromClient + " received");
 							sendBroadcast(clientName, textFromClient, socket);
+							if (rmiFileService != null) {
+								rmiFileService.add(clientName, textFromClient);
+							}
 						}
 					} catch (IOException e) {
 						System.out.println("Client disconnected");
